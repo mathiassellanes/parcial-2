@@ -1,14 +1,17 @@
 import { usePlanets } from '@/hooks/fetchHooks';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useNavigation } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
   const { planets } = usePlanets();
 
+  const navigation = useNavigation();
+
   const handleGoToPlanetDetails = ({ id }: { id: string }) => {
-    router.navigate(`/form`);
+    router.navigate(`/planet/${id}`);
   }
+
 
   return (
     <SafeAreaView style={styles.appComponent}>
@@ -16,16 +19,12 @@ export default function HomeScreen() {
         data={planets}
         keyExtractor={(planet) => planet.id.toString()}
         renderItem={({ item: planet }) => (
-          <View style={styles.stepContainer}>
-            <Text>{planet.name}</Text>
-            <Text>{planet.description}</Text>
-            <Text>{planet.moons}</Text>
-            <Text>{planet.moon_names.join(', ')}</Text>
-            <Image source={{ uri: planet.image }} style={styles.reactLogo} />
-            <Pressable onPress={() => handleGoToPlanetDetails({id: planet.id}) } style={styles.planetCardButton}>
-              <Text style={styles.textDetails}>View details</Text>
-            </Pressable>
-          </View>
+          <Pressable onPress={() => handleGoToPlanetDetails({ id: planet.id })} style={styles.planetCardButton}>
+            <View style={styles.stepContainer}>
+              <Text style={styles.stepContainerText}>{planet.name}</Text>
+              <Image source={{ uri: planet.image }} style={styles.reactLogo} />
+            </View>
+          </Pressable>
         )}
       />
     </SafeAreaView>
@@ -38,13 +37,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     flexDirection: 'column',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: 'black',
+  },
+  stepContainerText: {
+    color: 'white',
   },
   planetCardButton: {
-    backgroundColor: 'blue',
+    backgroundColor: 'black',
     color: 'white',
     padding: 10,
-    borderRadius: 5,
   },
   reactLogo: {
     width: 100,

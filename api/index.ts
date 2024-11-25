@@ -2,19 +2,25 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/planets';
 
+const api = axios.create({
+  baseURL: API_URL,
+});
+
 export const getAllPlanets = async () => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await api.get('');
+
     return response.data;
   } catch (error) {
-    console.error('Error fetching planets:', error);
+    console.error(error);
     throw error;
   }
 };
 
 export const getPlanetById = async (id: number) => {
   try {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await api.get(`/${id}`);
+
     return response.data;
   } catch (error) {
     console.error(`Error fetching planet with id ${id}:`, error);
@@ -24,7 +30,8 @@ export const getPlanetById = async (id: number) => {
 
 export const addPlanet = async (planet: any) => {
   try {
-    const response = await axios.post(API_URL, planet);
+    const response = await api.post('', planet);
+
     return response.data;
   } catch (error) {
     console.error('Error adding planet:', error);
@@ -34,7 +41,7 @@ export const addPlanet = async (planet: any) => {
 
 export const deletePlanet = async (id: number) => {
   try {
-    await axios.delete(`${API_URL}/${id}`);
+    await api.delete(`/${id}`);
   } catch (error) {
     console.error(`Error deleting planet with id ${id}:`, error);
     throw error;
@@ -43,7 +50,7 @@ export const deletePlanet = async (id: number) => {
 
 export const updatePlanet = async (id: number, planet: any) => {
   try {
-    const response = await axios.put(`${API_URL}/${id}`, planet);
+    const response = await api.put(`/${id}`, planet);
     return response.data;
   } catch (error) {
     console.error(`Error updating planet with id ${id}:`, error);
