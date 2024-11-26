@@ -12,12 +12,12 @@ export const starColor = (isLiked: boolean) => {
   if (isLiked) {
     return {
       color: isAndroid ? 'yellow' : 'pink',
-      name: 'star-sharp'
+      name: isAndroid ? 'star-sharp' : 'heart-sharp'
     }
   }
 
   return {
     color: isAndroid ? 'green' : '',
-    name: 'star-outline',
+    name: isAndroid ? 'star-outline' : 'heart-outline',
   }
 }

@@ -1,5 +1,7 @@
 import { router } from 'expo-router';
 import React, { createContext, useState, useContext, ReactNode, Dispatch, SetStateAction } from 'react';
+import { Dimensions } from 'react-native';
+import { View } from 'react-native-reanimated/lib/typescript/Animated';
 
 interface ModalContextType {
   closeModal: () => void;

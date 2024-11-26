@@ -3,10 +3,14 @@ import { useModal } from '@/context/modalContext';
 import { useDestinations } from '@/hooks/fetchHooks';
 import { useEffect } from 'react';
 
-import { FlatList, SafeAreaView, StyleSheet} from 'react-native';
+import { Dimensions, FlatList, SafeAreaView, StyleSheet} from 'react-native';
+
+const dimension = Dimensions.get('screen')
 
 export default function Destinations() {
   const { dataUpdated } = useModal()
+
+  console.log()
 
   const { destinations, setDestinations, fetchDestinations } = useDestinations();
 
@@ -19,6 +23,7 @@ export default function Destinations() {
   return (
     <SafeAreaView style={styles.appComponent}>
       <FlatList
+        style={{maxHeight: dimension.height * 0.85}}
         data={destinations}
         keyExtractor={(destination, index) => `${destination.id}${index}`}
         renderItem={({ item }) => (
@@ -72,7 +77,7 @@ const styles = StyleSheet.create({
   appComponent: {
     flex: 1,
     alignItems: 'center',
-    maxHeight: '85%',
     backgroundColor: '#f0f0f0',
+    height: '100%'
   },
 });
