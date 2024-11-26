@@ -1,9 +1,12 @@
 import DropDownPicker from 'react-native-dropdown-picker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, TextInput, View, Button, StyleSheet } from 'react-native';
 import { useModal } from '@/context/modalContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ThemedView } from '@/components/ThemedView';
+import { addDestination, updateDestination } from '@/api';
+import { Destination } from '@/types/destination';
+import { difficultyOptions } from '@/constants/difficultyOptions';
 
 export type Planet = {
   id: number;
@@ -14,86 +17,95 @@ export type Planet = {
   image: string;
 };
 
-const Form = () => {
-  const { data } = useModal();
+const Form = ({ onSubmit }: { onSubmit?: () => void }) => {
+  const { data, closeModal, setDataUpdated } = useModal();
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
 
+  const [difficulty, setDifficulty] = useState('');
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    { label: 'Apple', value: 'apple' },
-    { label: 'Banana', value: 'banana' }
-  ]);
 
-  const [planet, setPlanet] = useState<Planet>({
-    id: data?.id || 0,
+  const [destination, setDestination] = useState<Destination>({
     name: data?.name || '',
     description: data?.description || '',
-    moons: data?.moons || 0,
-    moon_names: data?.moon_names || [],
-    image: data?.image || ''
+    difficulty: data?.difficulty || 'easy',
+    isFavorite: data?.isFavorite || false,
   });
 
   const handleInputChange = (field: keyof Planet, value: any) => {
-    setPlanet({ ...planet, [field]: value });
+    setDestination({ ...destination, [field]: value });
   };
 
-  const handleSubmit = () => {
-    // Aquí puedes manejar la lógica para enviar el formulario
-    console.log(planet);
+  const handleSubmit = async () => {
+    if (data) {
+      const dataUpdated = await updateDestination(data.id, destination)
+
+      setDataUpdated(dataUpdated)
+    } else {
+      const dataCreated = await addDestination(destination);
+
+      setDataUpdated(dataCreated)
+    }
+
+    setDestination({
+      name: '',
+      description: '',
+      difficulty: 'easy',
+      isFavorite: false,
+    })
+    setDifficulty('easy')
+
+    onSubmit?.()
+    closeModal()
   };
+
+  useEffect(() => {
+    if (!difficulty) {
+      setDifficulty(destination.difficulty)
+    }
+  }, [destination])
+
+  useEffect(() => {
+    setDestination((prevValue) => ({
+      ...prevValue,
+      difficulty,
+    }))
+  }, [difficulty])
 
   return (
     <ThemedView style={styles.container}>
-      <Text style={[styles.title, isDarkMode && styles.titleDark]}>Form</Text>
+      <Text style={[styles.title, isDarkMode && styles.titleDark]}>
+        {
+          data ? 'Editar' : 'Crear'
+        } Destino
+      </Text>
       <TextInput
         style={[styles.input, isDarkMode && styles.inputDark]}
-        placeholder="Name"
+        placeholder="Nombre del destino"
         placeholderTextColor={isDarkMode ? '#ccc' : '#666'}
-        value={planet.name}
+        value={destination.name}
         onChangeText={(text) => handleInputChange('name', text)}
       />
       <TextInput
         style={[styles.input, isDarkMode && styles.inputDark]}
-        placeholder="Description"
+        placeholder="Descripción breve"
         placeholderTextColor={isDarkMode ? '#ccc' : '#666'}
-        value={planet.description}
+        value={destination.description}
         onChangeText={(text) => handleInputChange('description', text)}
-      />
-      <TextInput
-        style={[styles.input, isDarkMode && styles.inputDark]}
-        placeholder="Moons"
-        placeholderTextColor={isDarkMode ? '#ccc' : '#666'}
-        value={planet.moons.toString()}
-        keyboardType="numeric"
-        onChangeText={(text) => handleInputChange('moons', parseInt(text))}
-      />
-      <TextInput
-        style={[styles.input, isDarkMode && styles.inputDark]}
-        placeholder="Moon Names (comma separated)"
-        placeholderTextColor={isDarkMode ? '#ccc' : '#666'}
-        value={planet.moon_names.join(', ')}
-        onChangeText={(text) => handleInputChange('moon_names', text.split(',').map(name => name.trim()))}
-      />
-      <TextInput
-        style={[styles.input, isDarkMode && styles.inputDark]}
-        placeholder="Image URL"
-        placeholderTextColor={isDarkMode ? '#ccc' : '#666'}
-        value={planet.image}
-        onChangeText={(text) => handleInputChange('image', text)}
       />
       <DropDownPicker
         open={open}
-        value={value}
-        items={items}
+        value={difficulty}
+        items={difficultyOptions}
         setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
+        setValue={setDifficulty}
         style={[styles.dropdown, isDarkMode && styles.dropdownDark]}
         textStyle={{ color: isDarkMode ? '#fff' : '#000' }}
+        placeholder='Elije una dificultad'
       />
-      <Button title="Submit" onPress={handleSubmit} />
+      <Button title={
+        data ? 'Editar' : 'Crear'
+      } onPress={handleSubmit} />
     </ThemedView>
   );
 }
@@ -102,6 +114,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     borderRadius: 10,
+    height: '100%'
   },
   title: {
     fontSize: 24,

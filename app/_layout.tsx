@@ -34,8 +34,8 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="index" />
-          <Stack.Screen name="planet/[id]" />
-          <Stack.Screen name="planet/modal" options={{
+          <Stack.Screen name="destination/[id]" />
+          <Stack.Screen name="destination/modal" options={{
             presentation: 'transparentModal',
             animation: 'fade',
             headerShown: false,

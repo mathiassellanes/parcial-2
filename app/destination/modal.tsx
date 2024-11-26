@@ -1,5 +1,5 @@
 import Form from "@/components/Form"
-import Modal from "@/components/modal"
+import Modal from "@/components/Modal"
 
 const modal = () => {
   return (

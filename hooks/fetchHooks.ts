@@ -1,33 +1,47 @@
-import { getAllPlanets, getPlanetById } from "@/api"
-import { Planet } from "@/types/planet";
+import { getAllDestinations, getDestinationById } from "@/api"
+import { Destination } from "@/types/destination";
 import { useEffect, useState } from "react";
 
-export const usePlanets = () => {
-  const [planets, setPlanets] = useState<Planet[]>([]);
+export const useDestinations = () => {
+  const [destinations, setDestinations] = useState<Destination[]>([]);
 
-  const fetchPlanets = async () => {
-    const planets = await getAllPlanets();
-    setPlanets(planets);
+  const fetchDestinations = async () => {
+    const destinationsresult = await getAllDestinations();
+
+    const { favorite, nonFavorite } = destinationsresult.reduce((prevDestination, destination) => {
+      prevDestination[destination.isFavorite ? 'favorite' : 'nonFavorite'].push(destination)
+
+      return prevDestination
+    }, { favorite: [], nonFavorite: [] })
+
+    const sortedFavorite = favorite.sort((a, b) => a.name.localeCompare(b.name));
+    const sortedNonFavorite = nonFavorite.sort((a,b) => a.name.localeCompare(b.name));
+
+    setDestinations([
+      ...sortedFavorite,
+      ...sortedNonFavorite
+    ]);
   };
 
   useEffect(() => {
-    fetchPlanets();
+    fetchDestinations();
   }, []);
 
-  return { planets, fetchPlanets };
+
+  return { destinations, setDestinations, fetchDestinations };
 }
 
-export const usePlanetById = (id: number) => {
-  const [planet, setPlanet] = useState<Planet | null>(null);
+export const useDestinationById = (id: string) => {
+  const [destination, setDestination] = useState<Destination | null>(null);
 
-  const fetchPlanet = async () => {
-    const planet = await getPlanetById(id);
-    setPlanet(planet);
+  const fetchDestination = async () => {
+    const destination = await getDestinationById(id);
+    setDestination(destination);
   };
 
   useEffect(() => {
-    fetchPlanet();
-  }, [id]);
+    fetchDestination();
+  }, []);
 
-  return { planet, fetchPlanet };
+  return { destination, fetchDestination, setDestination };
 }
